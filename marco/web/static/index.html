@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>marco</title>
+    <link rel="stylesheet" href="css/marco.css">
+</head>
+<body>
+
+<header class="site-header">
+    <span class="site-title">marco</span>
+    <span class="site-elapsed" id="elapsed"></span>
+</header>
+
+<nav>
+    <a href="#analysis" class="active" data-view="analysis">analysis</a>
+    <a href="#explore" data-view="explore">explore</a>
+    <a href="#query" data-view="query">query</a>
+</nav>
+
+<div class="layout">
+    <div class="main-content">
+
+        <!-- Analysis View -->
+        <div class="view active" id="view-analysis">
+            <div id="analysis-config">
+                <form class="analysis-form" id="analysis-form">
+                    <fieldset>
+                        <label for="seed-input">seed binaries</label>
+                        <span class="form-hint">Space-separated list of starting DLLs</span>
+                        <input type="text" id="seed-input" placeholder="kernel32.dll ntdll.dll" autocomplete="off">
+
+                        <div class="form-row">
+                            <div>
+                                <label for="search-paths-input">additional search paths</label>
+                                <span class="form-hint">Optional — CWD, PATH, and System32 are searched automatically. Separate with <code>;</code></span>
+                                <input type="text" id="search-paths-input" placeholder="C:\custom\dlls;D:\other\path" autocomplete="off">
+                            </div>
+                            <div>
+                                <label for="workers-input">workers</label>
+                                <span class="form-hint">Parallel tasks</span>
+                                <input type="number" id="workers-input" placeholder="auto" min="1" max="32" style="width:90px">
+                            </div>
+                            <div>
+                                <label for="depth-input">traversal depth</label>
+                                <span class="form-hint">How many import levels to follow</span>
+                                <input type="number" id="depth-input" placeholder="unlimited" min="1" style="width:100px">
+                            </div>
+                        </div>
+
+                        <div class="checkbox-grid">
+                            <label>
+                                <input type="checkbox" id="use-processes-input" checked>
+                                <span class="cb-label">multiprocessing</span>
+                                <span class="cb-hint">Run workers in separate processes (recommended)</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="prewalk-input" checked>
+                                <span class="cb-label">pre-scan imports</span>
+                                <span class="cb-hint">Quick-scan import tables before full analysis to reduce idle time</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="no-kernel-input">
+                                <span class="cb-label">skip kernel modules</span>
+                                <span class="cb-hint">Exclude ntoskrnl.exe and securekernel.exe</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="single-binary-input">
+                                <span class="cb-label">seeds only</span>
+                                <span class="cb-hint">Don't follow imports — only analyze the listed binaries</span>
+                            </label>
+                            <label>
+                                <input type="checkbox" id="load-neo4j-input" checked>
+                                <span class="cb-label">import to Neo4j</span>
+                                <span class="cb-hint">Load results into Neo4j after analysis (requires NEO4J env vars)</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" id="analyze-btn">analyze</button>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div id="analysis-table-container"></div>
+
+            <div id="analysis-footer" class="analysis-footer" style="display:none">
+                <span class="stat"><span class="value" id="total-nodes">0</span> fn</span>
+                <span class="stat"><span class="value" id="total-edges">0</span> calls</span>
+                <span class="stat"><span class="value" id="total-imports">0</span> imports</span>
+                <span class="stat" id="total-syscalls-stat" style="display:none"><span class="value" id="total-syscalls">0</span> syscalls</span>
+                <span class="sparkline-container" id="sparkline-container"></span>
+                <span class="progress" id="analysis-progress"></span>
+            </div>
+
+            <div id="phase-indicator" class="phase-indicator" style="display:none"></div>
+        </div>
+
+        <!-- Exploration View -->
+        <div class="view" id="view-explore">
+            <div class="explore-controls">
+                <div class="view-toggle" id="explore-view-toggle">
+                    <button class="toggle-btn active" data-mode="graph">graph</button>
+                    <button class="toggle-btn" data-mode="table">table</button>
+                    <button class="toggle-btn" data-mode="clusters">clusters</button>
+                </div>
+            </div>
+            <div id="explore-graph-container"></div>
+            <div id="cluster-graph-container" style="display:none"></div>
+            <div id="cluster-status" class="cluster-status" style="display:none"></div>
+            <div id="explore-table-summary" style="display:none"></div>
+            <div id="explore-table-container" style="display:none">
+                <p class="empty-state">Run an analysis to explore dependencies.</p>
+            </div>
+        </div>
+
+        <!-- Query View -->
+        <div class="view" id="view-query">
+            <div class="query-editor-container">
+                <textarea id="cypher-input" rows="4" placeholder="MATCH (n:Function) RETURN n.module, count(*) AS cnt ORDER BY cnt DESC LIMIT 20"></textarea>
+            </div>
+            <div class="query-controls">
+                <button id="query-run-btn">run query</button>
+                <div class="view-toggle" id="query-view-toggle" style="display:none">
+                    <button class="toggle-btn active" data-mode="graph">graph</button>
+                    <button class="toggle-btn" data-mode="table">table</button>
+                </div>
+                <span class="query-status" id="query-status"></span>
+                <span class="neo4j-status" id="neo4j-status"></span>
+            </div>
+            <div id="query-error"></div>
+            <div id="query-graph-container" style="display:none"></div>
+            <div id="query-results"></div>
+        </div>
+
+    </div>
+
+    <div class="sidenote-column" id="sidenote-column">
+        <!-- Sidenotes appear here -->
+        <div id="sidenote-content">
+            <div class="sidenote" id="sidenote-placeholder">
+                <p class="empty-state">Click a binary for details.</p>
+            </div>
+        </div>
+        <!-- Query presets (shown in query view) -->
+        <div id="query-presets" style="display:none">
+            <div class="query-presets">
+                <h3>preset queries</h3>
+                <a data-cypher="MATCH (s:Function)-[r:CALLS]->(d:Function) RETURN s, r, d LIMIT 200">
+                    Call graph
+                    <span class="preset-description">Browse function call edges</span>
+                </a>
+                <a data-cypher="MATCH (s:Function)-[r:CALLS]->(d:Function) WHERE s.module <> d.module RETURN s, r, d LIMIT 100">
+                    Cross-module calls
+                    <span class="preset-description">Inter-module call paths</span>
+                </a>
+                <a data-cypher="MATCH (s:Function)-[r:SYSCALL]->(d:Function) RETURN s, r, d ORDER BY s.name LIMIT 50">
+                    Syscall mappings
+                    <span class="preset-description">Ntdll stubs to kernel functions</span>
+                </a>
+                <a data-cypher="MATCH (s:Function)-[r]->(d:Function) RETURN s, r, d LIMIT 100">
+                    All relationships
+                    <span class="preset-description">Browse all edge types</span>
+                </a>
+                <a data-cypher="MATCH (s:Function)-[r:RPC_CLIENT_CALL]->(d:Function) RETURN s, r, d ORDER BY s.module LIMIT 50">
+                    RPC calls
+                    <span class="preset-description">RPC client-to-server calls</span>
+                </a>
+                <a data-cypher="MATCH (s:Function)-[r:SECURE_CALL]->(d:Function) RETURN s, r, d LIMIT 50">
+                    Secure calls
+                    <span class="preset-description">Ntoskrnl to Secure Kernel calls</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/vendor/force-graph.min.js"></script>
+<script src="js/sparkline.js"></script>
+<script src="js/table.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/graph.js"></script>
+<script src="js/clusters.js"></script>
+<script src="js/exploration.js"></script>
+<script src="js/query.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

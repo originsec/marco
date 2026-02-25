@@ -1,0 +1,701 @@
+/* Marco — Praxis-inspired design system */
+
+/* Reset & base */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+                 "Segoe UI", sans-serif;
+    background-color: #f6f5f2;
+    color: #181612;
+    line-height: 1.6;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+}
+
+/* Monospace for data */
+.mono, code, td.binary-name, .query-error, textarea,
+.analysis-form input[type="text"],
+.analysis-form input[type="number"] {
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Consolas", monospace;
+}
+
+/* Layout: main + sidenote margin */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    align-items: start;
+}
+
+.main-content {
+    min-width: 0;
+}
+
+.sidenote-column {
+    position: sticky;
+    top: 1.5rem;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    font-size: 0.9rem;
+    color: #5c5b54;
+    scrollbar-width: thin;
+}
+
+
+/* Header */
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #dad9d4;
+    padding-bottom: 0.5rem;
+}
+
+.site-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.site-elapsed {
+    font-variant-numeric: tabular-nums;
+    color: #5c5b54;
+    font-size: 0.9rem;
+}
+
+/* Navigation */
+nav {
+    margin-bottom: 1.5rem;
+}
+
+nav a {
+    color: #5c5b54;
+    text-decoration: none;
+    margin-right: 1.5rem;
+    padding-bottom: 2px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+nav a:hover {
+    color: #181612;
+}
+
+nav a.active {
+    color: #181612;
+    border-bottom: 2px solid #181612;
+}
+
+/* Data tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+}
+
+thead th {
+    border-bottom: 2px solid #181612;
+    font-weight: 500;
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.85rem;
+    color: #5c5b54;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+thead th.num {
+    text-align: right;
+}
+
+tbody td {
+    border-bottom: 1px solid #e6e5e0;
+    padding: 0.3rem 0.5rem;
+    vertical-align: baseline;
+}
+
+tbody td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+tfoot td {
+    border-top: 2px solid #181612;
+    font-weight: 600;
+    padding: 0.4rem 0.5rem;
+}
+
+tfoot td.num {
+    text-align: right;
+}
+
+/* Analysis table — scrollable with sticky header */
+#analysis-table-container {
+    max-height: min(60vh, 600px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+#analysis-table-container thead th {
+    position: sticky;
+    top: 0;
+    background: #f6f5f2;
+    z-index: 1;
+}
+
+/* Clickable rows */
+tbody tr[data-binary] {
+    cursor: pointer;
+}
+
+tbody tr[data-binary]:hover td {
+    background: #f2f1ec;
+}
+
+/* Status encoding via typography */
+tr.status-analyzing td {
+    font-style: italic;
+    color: #5c5b54;
+}
+
+tr.status-queued td {
+    color: #94938c;
+}
+
+tr.status-error td {
+    text-decoration: line-through;
+    color: #94938c;
+}
+
+/* Binary name */
+td.binary-name {
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Footer aggregates */
+.analysis-footer {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 2px solid #181612;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.9rem;
+}
+
+.analysis-footer .stat {
+    white-space: nowrap;
+}
+
+.analysis-footer .stat .value {
+    font-weight: 600;
+}
+
+.analysis-footer .sparkline-container {
+    flex-shrink: 0;
+}
+
+.analysis-footer .progress {
+    color: #5c5b54;
+    margin-left: auto;
+}
+
+/* Phase indicator */
+.phase-indicator {
+    margin-top: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+    color: #5c5b54;
+    font-style: italic;
+}
+
+.phase-indicator .phase-bar {
+    display: inline-block;
+    width: 120px;
+    height: 3px;
+    background: #e6e5e0;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.phase-indicator .phase-bar-fill {
+    height: 100%;
+    background: #658a65;
+    transition: width 0.3s ease;
+}
+
+/* Sparkline */
+.sparkline {
+    vertical-align: middle;
+}
+
+.sparkline polyline {
+    fill: none;
+    stroke: #5c5b54;
+    stroke-width: 1.5;
+}
+
+/* Sidenote panel */
+.sidenote {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e6e5e0;
+}
+
+.sidenote h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.sidenote p {
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+}
+
+.sidenote .detail-table {
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+}
+
+.sidenote .detail-table td {
+    padding: 0.1rem 0.4rem;
+    border-bottom: none;
+}
+
+.sidenote .dep-list {
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Consolas", monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    margin-top: 0.3rem;
+}
+
+.sidenote .dep-list span {
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.sidenote .dep-list span.not-analyzed {
+    color: #94938c;
+}
+
+/* Analysis config form */
+.analysis-form {
+    margin: 1rem 0;
+}
+
+.analysis-form fieldset {
+    border: none;
+    padding: 0;
+}
+
+.analysis-form label {
+    display: block;
+    font-size: 0.85rem;
+    color: #5c5b54;
+    margin-bottom: 0.2rem;
+    margin-top: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 500;
+}
+
+.analysis-form input[type="text"],
+.analysis-form input[type="number"] {
+    font-size: 0.9rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid #dad9d4;
+    background: #fbfbf9;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 2px;
+}
+
+.analysis-form input[type="text"]:focus,
+.analysis-form input[type="number"]:focus {
+    outline: none;
+    border-color: #78776e;
+}
+
+.analysis-form .form-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+/* Form hints */
+.form-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: #94938c;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-bottom: 0.2rem;
+}
+
+.form-hint code {
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Consolas", monospace;
+    font-size: 0.78rem;
+    background: #eeede8;
+    padding: 0.05rem 0.3rem;
+    border-radius: 2px;
+}
+
+/* Checkbox grid */
+.analysis-form .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem 2rem;
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+}
+
+.analysis-form .checkbox-grid label {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    gap: 0 0.4rem;
+    margin: 0;
+    color: #181612;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+    padding: 0.2rem 0;
+}
+
+.analysis-form .checkbox-grid input[type="checkbox"] {
+    grid-row: 1;
+}
+
+.cb-label {
+    font-weight: 500;
+}
+
+.cb-hint {
+    grid-column: 2;
+    font-size: 0.78rem;
+    color: #94938c;
+}
+
+.analysis-form button,
+.query-controls button {
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.4rem 1.5rem;
+    border: 1px solid #181612;
+    background: #181612;
+    color: #f6f5f2;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 2px;
+}
+
+.analysis-form button { margin-top: 1rem; }
+
+.analysis-form button:hover,
+.query-controls button:hover {
+    background: #5c5b54;
+    border-color: #5c5b54;
+}
+
+.analysis-form button:disabled {
+    background: #94938c;
+    border-color: #94938c;
+    cursor: not-allowed;
+}
+
+/* Query view */
+.query-editor-container {
+    margin: 1rem 0;
+    border: 1px solid #dad9d4;
+    border-radius: 2px;
+}
+
+.query-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0;
+}
+
+.query-controls .query-status {
+    font-size: 0.85rem;
+    color: #5c5b54;
+}
+
+.query-error {
+    color: #a86262;
+    font-size: 0.85rem;
+    margin: 0.5rem 0;
+}
+
+.query-presets {
+    font-size: 0.85rem;
+}
+
+.query-presets h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.query-presets a {
+    display: block;
+    color: #181612;
+    text-decoration: none;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #e6e5e0;
+    cursor: pointer;
+}
+
+.query-presets a:hover {
+    color: #5c5b54;
+}
+
+.query-presets .preset-description {
+    color: #94938c;
+    font-size: 0.8rem;
+}
+
+/* Explore view */
+.explore-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: #5c5b54;
+}
+
+/* View toggle */
+.view-toggle {
+    display: inline-flex;
+    border: 1px solid #dad9d4;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.view-toggle .toggle-btn {
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.2rem 0.7rem;
+    border: none;
+    background: #fbfbf9;
+    color: #5c5b54;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    text-transform: lowercase;
+}
+
+.view-toggle .toggle-btn + .toggle-btn {
+    border-left: 1px solid #dad9d4;
+}
+
+.view-toggle .toggle-btn.active {
+    background: #181612;
+    color: #f6f5f2;
+}
+
+.view-toggle .toggle-btn:hover:not(.active) {
+    background: #f2f1ec;
+}
+
+/* Graph containers */
+#explore-graph-container,
+#query-graph-container,
+#cluster-graph-container {
+    height: min(70vh, 700px);
+    background: #fbfbf9;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Cluster status message */
+.cluster-status {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #94938c;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* Cluster color swatch */
+.cluster-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 0.3rem;
+}
+
+/* Cluster list — compact dep lists */
+.cluster-item .dep-list {
+    line-height: 1.5;
+    font-size: 0.75rem;
+}
+
+/* Characteristic functions list */
+.cluster-functions {
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Consolas", monospace;
+    font-size: 0.78rem;
+    line-height: 1.8;
+    margin-top: 0.3rem;
+}
+
+.cluster-functions span {
+    display: block;
+    color: #5c5b54;
+}
+
+/* Explore table — sticky header */
+#explore-table-container thead th {
+    position: sticky;
+    top: 0;
+    background: #f6f5f2;
+    z-index: 1;
+}
+
+/* Explore table — sortable column headers */
+#explore-table-container thead th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+#explore-table-container thead th.sortable:hover {
+    color: #181612;
+}
+
+#explore-table-container thead th .sort-indicator {
+    margin-left: 0.2em;
+    font-size: 0.75rem;
+}
+
+/* Explore table — compact rows */
+#explore-table-container tbody td {
+    padding: 0.2rem 0.4rem;
+}
+
+/* Explore table — data bars */
+.bar-cell {
+    position: relative;
+}
+
+.bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: #e6e5e0;
+    pointer-events: none;
+}
+
+.bar-value {
+    position: relative;
+    z-index: 1;
+}
+
+/* Explore table — status suffix */
+.status-suffix {
+    font-style: italic;
+    color: #94938c;
+    font-size: 0.8rem;
+    margin-left: 0.4em;
+}
+
+/* Explore table — summary line */
+#explore-table-summary {
+    font-size: 0.85rem;
+    color: #5c5b54;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 0.25rem;
+}
+
+/* Empty state */
+.empty-state {
+    color: #94938c;
+    font-style: italic;
+    margin: 2rem 0;
+}
+
+/* View containers */
+.view {
+    display: none;
+}
+
+.view.active {
+    display: block;
+}
+
+/* Neo4j status indicator */
+.neo4j-status {
+    font-size: 0.85rem;
+    color: #5c5b54;
+}
+
+.neo4j-status.connected {
+    color: #658a65;
+}
+
+.neo4j-status.disconnected {
+    color: #a86262;
+}
+
+/* Textarea (query) */
+textarea {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    border: none;
+    background: #fbfbf9;
+    resize: vertical;
+    width: 100%;
+    line-height: 1.5;
+}
+
+textarea:focus {
+    outline: none;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidenote-column {
+        position: static;
+        max-height: none;
+        border-top: 1px solid #dad9d4;
+        padding-top: 1rem;
+    }
+
+    .analysis-form .checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+}

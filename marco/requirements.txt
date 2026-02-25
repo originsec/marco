@@ -1,0 +1,5 @@
+# binaryninja-api>=4.0
+pyjectify==1.0
+neo4j==5.21.0
+
+
