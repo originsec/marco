@@ -23,30 +23,34 @@ python ~\AppData\Local\Vector35\BinaryNinja\scripts\install_api.py
 
 2. Install marco:
 ```bash
-uv sync
+uv tool install git+https://github.com/originsec/marco
 ```
 
-3. Edit the config file
+3. Setup your environment
+Marco supports using a persistent config file:
 ```bash
-cp sample.config marco.config
+vim ~/marco.config
 # Edit the placeholder values in your editor of choice
-vim marco.config
+NEO4J_URI=neo4j://127.0.0.1:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your_password_here
+ANTHROPIC_API_KEY=your_api_key_here (optional, for cluster labeling)
+```
+
+Or simply set environment variables:
+```bash
+$env:NEO4J_URI=neo4j://127.0.0.1:7687
+$env:NEO4J_USER=neo4j
+$env:NEO4J_PASSWORD=your_password_here
+# Optional, for cluster labeling
+$env:ANTHROPIC_API_KEY=your_api_key_here
 ```
 
 4. Run marco
 ```bash
-uv run marco
+marco
 ```
 ---
-### Configuration
-Marco supports a `KEY=VALUE` config file (searched in order: `./marco.config`, `~/.marco.config`):
-
-```
-NEO4J_URI=bolt://127.0.0.1:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=neo4j
-ANTHROPIC_API_KEY=sk-...   # optional, for cluster labeling
-```
 
 ### Usage
 Running `marco` starts a FastAPI web server — all interaction happens in the browser.
@@ -66,13 +70,6 @@ marco -o ./results
 
 # With config file
 marco --config marco.config
-```
-
-Neo4j credentials can be set via environment variables or a config file:
-```
-NEO4J_URI=bolt://127.0.0.1:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=neo4j
 ```
 
 ### Web UI
